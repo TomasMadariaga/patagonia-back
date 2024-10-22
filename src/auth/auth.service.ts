@@ -7,7 +7,7 @@ import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/user.entity';
 
@@ -70,8 +70,6 @@ export class AuthService {
       res.send({
         username: registeredUser.username,
         email: registeredUser.email,
-        token,
-        refreshToken,
       });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -107,21 +105,19 @@ export class AuthService {
       });
 
       res.cookie('token', token, {
-        httpOnly: true,
+        // httpOnly: true,
         // secure: true,
         path: '/',
       });
 
       res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
+        // httpOnly: true,
         // secure: true,
         path: '/',
       });
 
       res.send({
-        user: {username: user.username, email: user.email},
-        token,
-        refreshToken,
+        user: { username: user.username, email: user.email, refreshToken },
       });
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -133,8 +129,21 @@ export class AuthService {
       username: user.username,
       email: user.email,
     };
+    const token = this.jwtService.sign(payload, { secret: process.env.SECRET });
     return {
-      token: this.jwtService.sign(payload, {secret: process.env.SECRET}),
+      token,
     };
+  }
+
+  async checkAuthStatus(req: Request, res: Response) {
+    if (req.tokenExpired) {
+      return res.status(401).json({ message: 'Token expired' });
+    }
+
+    if (!req.user) {
+      return res.status(403).json({ message: 'User not authenticated' });
+    }
+
+    return res.status(200).json({ user: req.user });
   }
 }

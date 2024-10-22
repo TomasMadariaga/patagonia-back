@@ -3,13 +3,14 @@ import {
   Controller,
   Get,
   Post,
-  Request,
+  Req,
+  Request as RequestNest,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { RefreshJwtGuard } from './guard/refresh-jwt-auth.guard';
 import { JwtGuard } from './guard/jwt-auth.guard';
@@ -41,7 +42,12 @@ export class AuthController {
 
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
-  async refreshToken(@Request() req) {
+  async refreshToken(@RequestNest() req) {
     return await this.authService.refreshToken(req.user);
+  }
+
+  @Get('status')
+  async checkAuthStatus(@Req() req: Request, @Res() res: Response) {
+    return await this.authService.checkAuthStatus(req, res)
   }
 }

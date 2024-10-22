@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { UserService } from 'src/user/user.service';
 import { RefreshJwtStrategy } from './strategies/refreshToken.strategy';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { LocalStrategy } from './strategies/local-strategy';
+import { AuthMiddleware } from './middleware/auth.middleware';
 
 @Module({
   controllers: [AuthController],
@@ -16,8 +17,14 @@ import { LocalStrategy } from './strategies/local-strategy';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: `${process.env.SECRET}`,
-      signOptions: { expiresIn: '30s' },
+      signOptions: { expiresIn: '5m' },
     }),
   ],
 })
-export class AuthModule {}
+export class AuthModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes('auth/status');
+  }
+}
