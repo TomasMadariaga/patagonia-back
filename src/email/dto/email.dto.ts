@@ -1,4 +1,4 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class EmailDto {
   @IsString()
@@ -12,4 +12,7 @@ export class EmailDto {
 
   @IsString()
   message: string;
+
+  @IsOptional()
+  attachments: { name: string; content: string }[];
 }

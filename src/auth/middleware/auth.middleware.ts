@@ -16,8 +16,7 @@ export class AuthMiddleware implements NestMiddleware {
       req.user = payload;
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
-        // Si el token ha expirado, no lanzamos un error de inmediato.
-        req.tokenExpired = true; // Marcamos que el token ha expirado.
+        req.tokenExpired = true;
       } else {
         console.error('Invalid token:', error);
       }

@@ -13,7 +13,7 @@ import { RegisterDto } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { RefreshJwtGuard } from './guard/refresh-jwt-auth.guard';
-import { JwtGuard } from './guard/jwt-auth.guard';
+// import { JwtGuard } from './guard/jwt-auth.guard';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 
 @Controller('auth')
@@ -34,20 +34,19 @@ export class AuthController {
     return await this.authService.register(registerDto, res);
   }
 
-  @UseGuards(JwtGuard)
-  @Get('lol')
-  hola(): string {
-    return 'hola';
-  }
-
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
-  async refreshToken(@RequestNest() req) {
-    return await this.authService.refreshToken(req.user);
+  async refreshToken(@RequestNest() req, @Res() res: Response) {
+    return await this.authService.refreshToken(req.user, res);
   }
 
   @Get('status')
   async checkAuthStatus(@Req() req: Request, @Res() res: Response) {
-    return await this.authService.checkAuthStatus(req, res)
+    return await this.authService.checkAuthStatus(req, res);
+  }
+
+  @Post('logout')
+  async logout(@Req() req: Request, @Res() res: Response) {
+    return await this.authService.logout(req, res);
   }
 }
