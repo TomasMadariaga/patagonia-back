@@ -3,7 +3,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToMany,
   JoinColumn,
   OneToOne,
   CreateDateColumn,
@@ -20,6 +19,9 @@ export class Work {
 
   @Column()
   address: string;
+
+  @Column()
+  service: string;
 
   @Column()
   description: string;

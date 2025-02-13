@@ -77,8 +77,7 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { email } });
-    return user;
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   async findOneByEmailWithPassword(email: string) {
@@ -86,6 +85,18 @@ export class UserService {
       where: { email },
       select: ['id', 'email', 'name', 'role', 'lastname', 'password'],
     });
+  }
+
+  async findOneByResetPasswordToken(resetPasswordToken: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { resetPasswordToken },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -117,13 +128,21 @@ export class UserService {
 
     try {
       if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath); // Elimina el archivo
-        console.log(`Foto de perfil ${filename} eliminada exitosamente.`);
+        fs.unlinkSync(filePath);
       } else {
-        console.log(`No se encontró la foto de perfil: ${filename}`);
+        throw new HttpException(
+          'Profile picture not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
     } catch (error) {
-      console.error('Error al eliminar la foto de perfil:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Failed to delete profile picture',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -138,16 +157,6 @@ export class UserService {
     }
 
     return this.userRepository.delete({ id: userFound.id });
-  }
-
-  async updateProfilePicture(userId: number, filePath: string) {
-    const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) {
-      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
-    }
-    user.profilePicture = filePath;
-    const updatedUser = await this.userRepository.save(user);
-    return updatedUser;
   }
 
   async findProfilePicture(file) {

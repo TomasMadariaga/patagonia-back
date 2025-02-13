@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { IsArray, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { paymentMethod } from "../enum/paymentMethod.enum";
 import { status } from "../enum/status.enum";
 
@@ -7,6 +7,10 @@ export class CreateWorkDto {
   @IsString()
   @IsNotEmpty()
   address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  service: string;
 
   @IsString()
   @IsNotEmpty()

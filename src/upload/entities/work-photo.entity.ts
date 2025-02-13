@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 
 @Entity()
@@ -9,9 +9,15 @@ export class WorkPhoto {
   @Column()
   url: string;
 
-  @Column({ nullable: true })
-  description: string;
+  @Column()
+  filename: string;
+
+  @Column()
+  userId: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @ManyToOne(() => User, (user) => user.workPhotos, { onDelete: "CASCADE" })
-  professional: User;
+  user: User;
 }

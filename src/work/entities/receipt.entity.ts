@@ -8,8 +8,11 @@ export class Receipt {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int')
+  @Column('int', {unique: true})
   budgetNumber: number;
+
+  @Column()
+  service: string;
 
   @Column()
   description: string;

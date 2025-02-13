@@ -23,31 +23,38 @@ export class WorkService {
     value,
     commission,
     paymentMethod,
+    service,
     description,
   }: createReceiptDto) {
-    const workFounded = await this.workRepository.findOne({
-      where: { id: workId },
-    });
+    try {
+      const workFounded = await this.workRepository.findOne({
+        where: { id: workId },
+      });
 
-    if (!workFounded) {
-      throw new HttpException('Work not found', HttpStatus.NOT_FOUND);
+      if (!workFounded) {
+        throw new HttpException('Work not found', HttpStatus.NOT_FOUND);
+      }
+
+      const receipt = this.receiptRepository.create({
+        address,
+        budgetNumber,
+        value,
+        commission,
+        paymentMethod,
+        work: workFounded,
+        service,
+        description,
+      });
+      await this.receiptRepository.save(receipt);
+      return receipt;
+    } catch (error) {
+      throw new Error(error)
     }
-
-    const receipt = this.receiptRepository.create({
-      address,
-      budgetNumber,
-      value,
-      commission,
-      paymentMethod,
-      work: workFounded,
-      description,
-    });
-    await this.receiptRepository.save(receipt);
-    return receipt;
   }
 
   async createWork({
     address,
+    service,
     description,
     value,
     commission,
@@ -57,56 +64,62 @@ export class WorkService {
     budgetNumber,
     projectLeaderId,
   }: CreateWorkDto): Promise<Work> {
-    const client = await this.userRepository.findOne({
-      where: { id: clientId },
-      select: ['id', 'name', 'lastname', 'email'],
-    });
-    if (!client) {
-      throw new HttpException('Client not found', HttpStatus.NOT_FOUND);
+    try {
+      const client = await this.userRepository.findOne({
+        where: { id: clientId },
+        select: ['id', 'name', 'lastname', 'email'],
+      });
+      if (!client) {
+        throw new HttpException('Client not found', HttpStatus.NOT_FOUND);
+      }
+  
+      const projectLeader = await this.userRepository.findOne({
+        where: { id: projectLeaderId },
+        select: ['id', 'name', 'lastname', 'role', 'profilePicture', 'rating', 'totalVotes'],
+      });
+      if (!projectLeader) {
+        throw new HttpException('Project leader not found', HttpStatus.NOT_FOUND);
+      }
+  
+      const existingReceipt = await this.receiptRepository.findOne({
+        where: { budgetNumber },
+      });
+  
+      if (existingReceipt) {
+        throw new HttpException('Budget number already exists', HttpStatus.CONFLICT);
+      }
+  
+      const newWork = this.workRepository.create({
+        address,
+        service,
+        description,
+        value,
+        commission,
+        client,
+        paymentMethod,
+        projectLeader,
+        status,
+      });
+  
+      const savedWork = await this.workRepository.save(newWork);
+  
+      await this.createReceipt({
+        workId: savedWork.id,
+        address,
+        service,
+        description,
+        budgetNumber,
+        value,
+        commission,
+        paymentMethod,
+      });
+  
+      return savedWork;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    const projectLeader = await this.userRepository.findOne({
-      where: { id: projectLeaderId },
-      select: [
-        'id',
-        'name',
-        'lastname',
-        'role',
-        'profilePicture',
-        'rating',
-        'totalVotes',
-      ],
-    });
-
-    if (!projectLeader) {
-      throw new HttpException('Project leader not found', HttpStatus.NOT_FOUND);
-    }
-
-    const newWork = this.workRepository.create({
-      address,
-      description,
-      value,
-      commission,
-      client,
-      paymentMethod,
-      projectLeader,
-      status,
-    });
-
-    const savedWork = await this.workRepository.save(newWork);
-
-    await this.createReceipt({
-      workId: newWork.id,
-      address,
-      description,
-      budgetNumber,
-      value,
-      commission,
-      paymentMethod,
-    });
-
-    return savedWork;
   }
+  
 
   async findWorksByClient(id: number): Promise<Work[]> {
     const work = await this.workRepository.find({
@@ -135,7 +148,7 @@ export class WorkService {
 
   async findWorksByProfessional(id: number): Promise<Work[]> {
     const work = await this.workRepository.find({
-      where: { projectLeader: {id}},
+      where: { projectLeader: { id } },
       relations: ['projectLeader', 'receipt'],
       select: {
         projectLeader: {
@@ -159,7 +172,9 @@ export class WorkService {
   }
 
   async findWorks(): Promise<Work[]> {
-    const works = await this.workRepository.find();
+    const works = await this.workRepository.find({
+      relations: ['client', 'projectLeader'],
+    });
 
     if (!works) {
       throw new HttpException('Any work founded', HttpStatus.NOT_FOUND);
@@ -192,7 +207,7 @@ export class WorkService {
 
   async findReceiptsByProfessional(id: number): Promise<Receipt[]> {
     const receipt = await this.receiptRepository.find({
-      where: { work: { projectLeader: {id}} },
+      where: { work: { projectLeader: { id } } },
       relations: ['work.client'],
       select: {
         work: {
@@ -215,6 +230,29 @@ export class WorkService {
 
     if (!work) {
       throw new HttpException('Work not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (updateWorkDto.clientId) {
+      const client = await this.userRepository.findOne({
+        where: { id: updateWorkDto.clientId },
+      });
+      if (!client) {
+        throw new HttpException('Client not found', HttpStatus.NOT_FOUND);
+      }
+      work.client = client;
+    }
+
+    if (updateWorkDto.projectLeaderId) {
+      const projectLeader = await this.userRepository.findOne({
+        where: { id: updateWorkDto.projectLeaderId },
+      });
+      if (!projectLeader) {
+        throw new HttpException(
+          'Project leader not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      work.projectLeader = projectLeader;
     }
 
     Object.assign(work, updateWorkDto);

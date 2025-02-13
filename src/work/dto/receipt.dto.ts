@@ -8,6 +8,10 @@ export class createReceiptDto {
 
   @IsString()
   @IsNotEmpty()
+  service: string;
+
+  @IsString()
+  @IsNotEmpty()
   description: string;
 
   @IsNumber()

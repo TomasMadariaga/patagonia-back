@@ -1,25 +1,16 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
-  Post,
   Put,
   Req,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
 import { JwtGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Role } from './enum/role.enum';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
@@ -63,35 +54,6 @@ export class UserController {
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.delete(id);
-  }
-
-  @Post('upload/:id')
-  @UseInterceptors(
-    FileInterceptor('profilePicture', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          const fileExtension = path.extname(file.originalname);
-          const fileName = Date.now() + fileExtension;
-          callback(null, fileName);
-        },
-      }),
-    }),
-  )
-  async uploadProfilePicture(
-    @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() profilePicture: Express.Multer.File,
-  ): Promise<any> {
-    if (!profilePicture) {
-      throw new BadRequestException('No se seleccionó ningún archivo');
-    }
-
-    await this.userService.updateProfilePicture(id, profilePicture.filename);
-
-    const fileUrl = `http://localhost:3000/uploads/pfp/${profilePicture.filename}`;
-    return {
-      url: fileUrl,
-    };
   }
 
   @UseGuards(JwtGuard, RolesGuard)

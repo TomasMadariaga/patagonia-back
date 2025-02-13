@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Request as RequestNest,
@@ -13,8 +14,9 @@ import { RegisterDto } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { RefreshJwtGuard } from './guard/refresh-jwt-auth.guard';
-// import { JwtGuard } from './guard/jwt-auth.guard';
 import { LocalAuthGuard } from './guard/local-auth.guard';
+import { RequestResetPasswordDto } from './dto/request-reset-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -48,5 +50,15 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     return await this.authService.logout(req, res);
+  }
+
+  @Patch('/request-reset-password')
+  requestResetPassword(@Body() requestResetPasswordDto: RequestResetPasswordDto): Promise<void> {
+    return this.authService.requestResetPassword(requestResetPasswordDto)
+  }
+
+  @Patch('/reset-password')
+  resetPassword(@Body() resetpasswordDto: ResetPasswordDto): Promise<void> {
+    return this.authService.resetPassword(resetpasswordDto)
   }
 }
