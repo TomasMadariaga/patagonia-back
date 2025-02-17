@@ -34,6 +34,18 @@ export class CreateUserDto {
   profilePicture: string;
 
   @IsOptional()
+  @IsString()
+  frontDni: string;
+
+  @IsOptional()
+  @IsString()
+  backDni: string;
+
+  @IsOptional()
+  @IsString()
+  criminalRecord: string;
+
+  @IsOptional()
   @IsNumber()
   rating?: number;
 

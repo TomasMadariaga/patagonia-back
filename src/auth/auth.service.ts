@@ -46,6 +46,9 @@ export class AuthService {
       phone,
       role,
       profilePicture,
+      frontDni,
+      backDni,
+      criminalRecord
     }: RegisterDto,
     res: Response,
   ) {
@@ -62,6 +65,9 @@ export class AuthService {
         phone,
         role,
         profilePicture,
+        frontDni,
+        backDni,
+        criminalRecord
       });
 
       const payload = {

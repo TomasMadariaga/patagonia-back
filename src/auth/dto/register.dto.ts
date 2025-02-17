@@ -26,6 +26,18 @@ export class RegisterDto {
   @IsString()
   profilePicture: string;
 
+  @IsOptional()
+  @IsString()
+  frontDni: string;
+
+  @IsOptional()
+  @IsString()
+  backDni: string;
+
+  @IsOptional()
+  @IsString()
+  criminalRecord: string;
+
   @Transform(({ value }) => value.trim())
   @IsString()
   @MinLength(6)

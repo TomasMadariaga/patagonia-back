@@ -28,6 +28,15 @@ export class User {
   profilePicture: string;
 
   @Column({ nullable: true })
+  frontDni: string;
+
+  @Column({ nullable: true })
+  backDni: string;
+
+  @Column({ nullable: true })
+  criminalRecord: string;
+
+  @Column({ nullable: true })
   description: string;
 
   @Column()

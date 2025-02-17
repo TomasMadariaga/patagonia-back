@@ -29,6 +29,21 @@ export class UploadService {
     return updatedUser;
   }
 
+  async saveDniPhotos(userId: number, fileUrls: { frontDni: string, backDni: string }) {
+    const user = await this.userRepository.update(userId, {
+      frontDni: fileUrls.frontDni,
+      backDni: fileUrls.backDni,
+    });
+  
+    return user;
+  }
+
+  async updateCriminalRecord(userId: number, criminalRecordFilename: string) {
+    await this.userRepository.update(userId, {
+      criminalRecord: criminalRecordFilename,
+    });
+  }
+
   async saveWorkPhotos(
     userId: number,
     fileUrls: Array<{ filename: string; url: string }>,
@@ -56,6 +71,19 @@ export class UploadService {
     return workPhotos;
   }
 
+  async getDniPhotos(id: number) {
+    const dniPhotos = await this.userRepository.find({
+      where: { id },
+      select: ['frontDni', 'backDni']
+    });
+
+    if (!dniPhotos) {
+      throw new HttpException('Work photos not found', HttpStatus.NOT_FOUND);
+    }
+
+    return dniPhotos;
+  }
+
   async deleteWorkPhoto(userId: number, filename: string) {
     if (!userId || !filename) {
       throw new HttpException('Missing parameters', HttpStatus.BAD_REQUEST);
@@ -66,7 +94,10 @@ export class UploadService {
     });
 
     if (!photoFound) {
-      throw new HttpException('Work photo not found in database', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Work photo not found in database',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     const id = String(userId);
@@ -84,14 +115,20 @@ export class UploadService {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       } else {
-        throw new HttpException('Work photo not found on disk', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Work photo not found on disk',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       await this.workPhotoRepository.remove(photoFound);
 
       return { message: 'Work photo deleted successfully' };
     } catch (error) {
-      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
