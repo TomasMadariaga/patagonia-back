@@ -88,7 +88,7 @@ export class AuthService {
 
       res.cookie('token', token, {
         httpOnly: true,
-        // secure: true,
+        secure: true,
         sameSite: 'strict',
         path: '/',
         maxAge: 1000 * 60 * 15,
@@ -96,7 +96,7 @@ export class AuthService {
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        // secure: true,
+        secure: true,
         sameSite: 'strict',
         path: '/',
         maxAge: 1000 * 60 * 60 * 24 * 7,
@@ -154,7 +154,7 @@ export class AuthService {
 
       res.cookie('token', token, {
         httpOnly: true,
-        // secure: true,
+        secure: true,
         sameSite: 'strict',
         path: '/',
         maxAge: 1000 * 60 * 15,
@@ -162,7 +162,7 @@ export class AuthService {
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        // secure: true,
+        secure: true,
         sameSite: 'strict',
         path: '/',
         maxAge: 1000 * 60 * 60 * 24 * 7,
@@ -199,7 +199,7 @@ export class AuthService {
 
       res.cookie('token', token, {
         httpOnly: true,
-        // secure: true,
+        secure: true,
         sameSite: 'strict',
         path: '/',
         maxAge: 1000 * 60 * 15,
