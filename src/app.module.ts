@@ -16,7 +16,7 @@ import { WorkModule } from './work/work.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: process.env.DB_TYPE as 'mysql' | 'mariadb',
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT),
       username: process.env.DB_USERNAME,
