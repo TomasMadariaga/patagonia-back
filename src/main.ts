@@ -23,7 +23,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URL || 'https://cruzpatagonia.com.ar',
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
