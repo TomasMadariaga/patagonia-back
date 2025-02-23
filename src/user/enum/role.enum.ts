@@ -5,5 +5,10 @@ export enum Role {
   Albañil = "Albañil",
   Singuero = "Singuero",
   Herrero = "Herrero",
-  Carpintero = "Carpintero"
+  Carpintero = "Carpintero",
+  Picapedrero = "Picapedrero",
+  Plomero = "Plomero",
+  Electricista = "Electricista",
+  Calefaccionista = "Calefaccionista",
+  Gasista = "Gasista"
 }
