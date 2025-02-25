@@ -18,10 +18,10 @@ import { Roles } from 'src/auth/decorator/role.decorator';
 import { Request } from 'express';
 import { UpdateUserDto } from './dto/user.dto';
 import { Work } from '../work/entities/work.entity';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
-@UseGuards(AuthGuard('jwt'))
+@Roles(Role.Admin)
+@UseGuards(RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
